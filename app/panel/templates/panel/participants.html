@@ -1,0 +1,36 @@
+{% extends "panel/base.html" %}
+{% block title %}Учасники{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>Учасники</h1><div class="sub">Знайдено: {{ total }}</div></div>
+  <a class="btn ghost" href="{% url 'panel:participants_export' %}?{{ request.GET.urlencode }}">⬇ Експорт Excel</a>
+</div>
+
+<form class="filters" method="get">
+  <div><label>Пошук</label><input type="text" name="q" value="{{ request.GET.q }}" placeholder="ПІБ або телефон"></div>
+  <div><label>Фабрика</label><input type="text" name="factory" value="{{ request.GET.factory }}"></div>
+  <div><label>Салон</label><input type="text" name="salon" value="{{ request.GET.salon }}"></div>
+  <div><label>Місто</label><input type="text" name="city" value="{{ request.GET.city }}"></div>
+  <button class="btn sm" type="submit">Фільтрувати</button>
+  <a class="btn ghost sm" href="{% url 'panel:participants' %}">Скинути</a>
+</form>
+
+<div class="panel-box">
+  <table class="data">
+    <tr><th>ПІБ</th><th>Телефон</th><th>Салон</th><th>Місто</th><th>Продажів ✅</th><th>Квитків 🎫</th><th>Бонуси, грн 💰</th><th>Зареєстрований</th></tr>
+    {% for p in page %}
+    <tr>
+      <td><b>{{ p.full_name }}</b></td>
+      <td class="num">{{ p.phone }}</td>
+      <td>{{ p.salon }}</td>
+      <td>{{ p.city }}</td>
+      <td class="num">{{ p.sales_approved }}</td>
+      <td class="num"><b>{{ p.tickets_count }}</b></td>
+      <td class="num"><b>{{ p.bonus_total|default:0|floatformat:0 }}</b></td>
+      <td class="num">{{ p.created_at|date:"d.m.Y" }}</td>
+    </tr>
+    {% empty %}<tr><td colspan="8" class="empty">Нічого не знайдено</td></tr>{% endfor %}
+  </table>
+  {% include "panel/_pager.html" %}
+</div>
+{% endblock %}

@@ -1,0 +1,7 @@
+Django>=5.0,<5.2
+aiogram>=3.13,<4
+psycopg2-binary>=2.9
+gunicorn>=22.0
+openpyxl>=3.1
+whitenoise>=6.7
+requests>=2.32

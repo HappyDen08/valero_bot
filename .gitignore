@@ -1,0 +1,12 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+pgdata/
+backups/
+media/
+staticfiles/
+.DS_Store
+caddy_data/
+caddy_config/
+README.md

@@ -1,0 +1,71 @@
+{% extends "panel/base.html" %}
+{% block title %}Продаж №{{ sale.pk }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Продаж №{{ sale.pk }} <span class="badge {{ sale.status }}">{{ sale.get_status_display }}</span></h1>
+    <div class="sub">Подано {{ sale.created_at|date:"d.m.Y H:i" }} · Кампанія «{{ sale.campaign.name }}»</div>
+  </div>
+  <a class="btn ghost sm" href="{% url 'panel:sales' %}">← До списку</a>
+</div>
+
+<div class="detail-grid">
+  <div>
+    <div class="panel-box">
+      <div class="box-head">Дані продажу</div>
+      <table class="kv">
+        <tr><td>Учасник</td><td><b>{{ sale.participant.full_name }}</b></td></tr>
+        <tr><td>Телефон</td><td>{{ sale.participant.phone }}</td></tr>
+        <tr><td>Салон</td><td>{{ sale.participant.salon }}</td></tr>
+        <tr><td>Фабрика</td><td>{{ sale.participant.factory }}</td></tr>
+        <tr><td>Місто</td><td>{{ sale.participant.city }}</td></tr>
+        <tr><td>Дата продажу</td><td>{{ sale.sale_date|date:"d.m.Y" }}</td></tr>
+        <tr><td>Виріб</td><td>{{ sale.product_display }}</td></tr>
+        <tr><td>Тканина Veloro</td><td>{{ sale.fabric_name }}</td></tr>
+        <tr><td>Сума</td><td>{% if sale.amount %}{{ sale.amount|floatformat:0 }} грн{% else %}не вказано{% endif %}</td></tr>
+        {% if sale.status == 'approved' %}
+        <tr><td>Бонус продавцю</td><td><b>{{ sale.bonus_amount|floatformat:0 }} грн</b></td></tr>
+        {% endif %}
+        {% if sale.moderated_by %}
+        <tr><td>Модерував</td><td>{{ sale.moderated_by }} · {{ sale.moderated_at|date:"d.m.Y H:i" }}</td></tr>
+        {% endif %}
+        {% if sale.reject_reason %}
+        <tr><td>Причина відхилення</td><td>{{ sale.reject_reason }}</td></tr>
+        {% endif %}
+      </table>
+      {% if sale.status == 'pending' %}
+      <div class="actions-bar">
+        <form method="post">{% csrf_token %}
+          <input type="hidden" name="action" value="approve">
+          <button class="btn" type="submit">✅ Підтвердити і нарахувати квиток</button>
+        </form>
+        <form method="post" class="reject-form">{% csrf_token %}
+          <input type="hidden" name="action" value="reject">
+          <input type="text" name="reason" placeholder="Причина відхилення (побачить учасник)" required>
+          <button class="btn danger" type="submit">❌ Відхилити</button>
+        </form>
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
+
+  <div>
+    <div class="panel-box">
+      <div class="box-head">Фото документа</div>
+      <div class="photo-box">
+        {% if sale.doc_photo %}<a href="{{ sale.doc_photo.url }}" target="_blank"><img src="{{ sale.doc_photo.url }}" alt="Документ"></a>
+        {% else %}<span class="muted">Фото ще не завантажено з Telegram</span>{% endif %}
+      </div>
+    </div>
+    {% if sale.product_photo %}
+    <div class="panel-box">
+      <div class="box-head">Фото виробу</div>
+      <div class="photo-box">
+        <a href="{{ sale.product_photo.url }}" target="_blank"><img src="{{ sale.product_photo.url }}" alt="Виріб"></a>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

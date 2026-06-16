@@ -1,0 +1,24 @@
+{% load static %}<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Вхід · Veloro</title>
+<link rel="stylesheet" href="{% static 'panel/style.css' %}">
+</head>
+<body>
+<div class="login-wrap">
+  <form class="login-card" method="post">
+    {% csrf_token %}
+    <div class="brand2">VELORO<span>.</span></div>
+    <p class="sub">Панель мотиваційної програми</p>
+    <label>Логін</label>
+    <input type="text" name="username" autofocus required>
+    <label>Пароль</label>
+    <input type="password" name="password" required>
+    {% if form.errors %}<div class="login-err">Невірний логін або пароль.</div>{% endif %}
+    <button class="btn" type="submit">Увійти</button>
+  </form>
+</div>
+</body>
+</html>

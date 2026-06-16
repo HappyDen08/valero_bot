@@ -1,0 +1,46 @@
+{% extends "panel/base.html" %}
+{% block title %}Розіграші{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>Розіграші</h1><div class="sub">Квитків у пулі поточної кампанії: <b>{{ tickets_in_pool }}</b></div></div>
+</div>
+
+<div class="panel-box">
+  <div class="box-head">🎁 Провести розіграш</div>
+  <form method="get" action="{% url 'panel:draw_ceremony' %}" class="filters" style="border:none;margin:0;border-radius:0">
+    <div><label>Кампанія</label>
+      <select name="campaign" required>
+        {% for c in campaigns %}<option value="{{ c.pk }}">{{ c.name }}</option>{% endfor %}
+      </select>
+    </div>
+    <div style="flex:1"><label>Приз</label><input type="text" name="prize" placeholder="Наприклад: iPhone 16" required style="width:100%"></div>
+    <button class="btn" type="submit">🎬 Відкрити церемонію розіграшу</button>
+  </form>
+  <div class="muted" style="padding: 0 16px 14px">Відкриється повноекранна сторінка з барабаном — зручно для запису відео. Розіграш стартує лише після натискання кнопки на церемонії.</div>
+</div>
+
+<div class="panel-box">
+  <div class="box-head">Історія розіграшів</div>
+  <table class="data">
+    <tr><th>Дата і час</th><th>Кампанія</th><th>Приз</th><th>Виграшний квиток</th><th>Переможець</th><th>Квитків у пулі</th><th>Провів</th><th></th></tr>
+    {% for d in draws %}
+    <tr>
+      <td class="num">{{ d.performed_at|date:"d.m.Y H:i:s" }}</td>
+      <td>{{ d.campaign.name }}</td>
+      <td><b>{{ d.prize }}</b></td>
+      <td><b>{{ d.winning_ticket.code }}</b></td>
+      <td>{{ d.winner.full_name }}<br><span class="muted">{{ d.winner.salon }}, {{ d.winner.city }} · {{ d.winner.phone }}</span></td>
+      <td class="num">{{ d.tickets_total }}</td>
+      <td>{{ d.performed_by_display }}</td>
+      <td>
+        <form method="post">{% csrf_token %}
+          <input type="hidden" name="action" value="broadcast">
+          <input type="hidden" name="draw_id" value="{{ d.pk }}">
+          <button class="btn ghost sm" type="submit" onclick="return confirm('Розіслати результати всім учасникам?')">📣 Оголосити всім</button>
+        </form>
+      </td>
+    </tr>
+    {% empty %}<tr><td colspan="8" class="empty">Розіграшів ще не було</td></tr>{% endfor %}
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,12 @@
+# Реверс-проксі з автоматичним Let's Encrypt сертифікатом.
+# DOMAIN береться з .env (наприклад, veloro.duckdns.org)
+{$DOMAIN} {
+	reverse_proxy web:8000
+	encode gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+	}
+}

@@ -1,0 +1,50 @@
+{% extends "panel/base.html" %}
+{% block title %}Дашборд{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Дашборд</h1>
+    <div class="sub">{% if campaign %}Акція «{{ campaign.name }}» · {{ campaign.start_date|date:"d.m.Y" }} — {{ campaign.end_date|date:"d.m.Y" }}{% else %}Немає активної кампанії{% endif %}</div>
+  </div>
+</div>
+
+<div class="cards">
+  <div class="card"><div class="label">Учасників</div><div class="value">{{ stats.participants }}</div></div>
+  <div class="card warn"><div class="label">Очікують перевірки</div><div class="value">{{ stats.pending }}</div></div>
+  <div class="card hl"><div class="label">Підтверджених продажів</div><div class="value">{{ stats.approved }}</div></div>
+  <div class="card hl"><div class="label">Квитків нараховано</div><div class="value">{{ stats.tickets }}</div></div>
+  <div class="card"><div class="label">Бонусів нараховано, грн</div><div class="value">{{ stats.bonus_total|default:0|floatformat:0 }}</div></div>
+  {% if stats.amount_total %}<div class="card"><div class="label">Сума продажів, грн</div><div class="value">{{ stats.amount_total|floatformat:0 }}</div></div>{% endif %}
+</div>
+
+<div class="panel-box">
+  <div class="box-head">Останні продажі <a class="btn ghost sm" href="{% url 'panel:sales' %}">Усі продажі →</a></div>
+  <table class="data">
+    <tr><th>№</th><th>Подано</th><th>Учасник</th><th>Салон</th><th>Виріб</th><th>Статус</th></tr>
+    {% for s in recent_sales %}
+    <tr>
+      <td class="num"><a href="{% url 'panel:sale_detail' s.pk %}">№{{ s.pk }}</a></td>
+      <td class="num">{{ s.created_at|date:"d.m.Y H:i" }}</td>
+      <td>{{ s.participant.full_name }}</td>
+      <td>{{ s.participant.salon }}</td>
+      <td>{{ s.product_display }}</td>
+      <td><span class="badge {{ s.status }}">{{ s.get_status_display }}</span></td>
+    </tr>
+    {% empty %}<tr><td colspan="6" class="empty">Поки немає продажів</td></tr>{% endfor %}
+  </table>
+</div>
+
+<div class="panel-box">
+  <div class="box-head">Журнал дій</div>
+  <table class="data">
+    <tr><th>Коли</th><th>Хто</th><th>Дія</th></tr>
+    {% for log in recent_log %}
+    <tr>
+      <td class="num">{{ log.created_at|date:"d.m.Y H:i" }}</td>
+      <td>{{ log.actor }}</td>
+      <td>{{ log.action }} <span class="muted">{{ log.details }}</span></td>
+    </tr>
+    {% empty %}<tr><td colspan="3" class="empty">Журнал порожній</td></tr>{% endfor %}
+  </table>
+</div>
+{% endblock %}

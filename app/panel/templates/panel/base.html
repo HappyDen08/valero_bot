@@ -1,0 +1,36 @@
+{% load static %}<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Veloro{% endblock %} · Veloro</title>
+<link rel="stylesheet" href="{% static 'panel/style.css' %}">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand">VELORO<span>.</span><small>МОТИВАЦІЙНА ПРОГРАМА</small></div>
+    <nav class="nav">
+      <a href="{% url 'panel:dashboard' %}" class="{% if active == 'dashboard' %}on{% endif %}">📊 Дашборд</a>
+      <a href="{% url 'panel:sales' %}" class="{% if active == 'sales' %}on{% endif %}">🛋 Продажі{% if pending_count %}<span class="count">{{ pending_count }}</span>{% endif %}</a>
+      <a href="{% url 'panel:participants' %}" class="{% if active == 'participants' %}on{% endif %}">👥 Учасники</a>
+      <a href="{% url 'panel:tickets' %}" class="{% if active == 'tickets' %}on{% endif %}">🎫 Квитки</a>
+      <a href="{% url 'panel:rating' %}" class="{% if active == 'rating' %}on{% endif %}">🏆 Рейтинг</a>
+      <a href="{% url 'panel:draws' %}" class="{% if active == 'draws' %}on{% endif %}">🎁 Розіграші</a>
+    </nav>
+    <div class="foot">
+      {{ request.user.username }} ·
+      <form method="post" action="{% url 'panel:logout' %}" style="display:inline">{% csrf_token %}<button class="btn ghost sm" style="border:none;color:rgba(255,255,255,.8);padding:0;background:none;cursor:pointer">вийти</button></form>
+    </div>
+  </aside>
+  <main class="main">
+    {% if messages %}
+    <div class="msgs">
+      {% for m in messages %}<div class="msg {{ m.tags }}">{{ m }}</div>{% endfor %}
+    </div>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+</div>
+</body>
+</html>

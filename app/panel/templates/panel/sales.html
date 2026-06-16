@@ -1,0 +1,47 @@
+{% extends "panel/base.html" %}
+{% block title %}Продажі{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>Продажі</h1><div class="sub">Знайдено: {{ total }}</div></div>
+  <a class="btn ghost" href="{% url 'panel:sales_export' %}?{{ request.GET.urlencode }}">⬇ Експорт Excel</a>
+</div>
+
+<form class="filters" method="get">
+  <div><label>Пошук</label><input type="text" name="q" value="{{ request.GET.q }}" placeholder="ПІБ або тканина"></div>
+  <div><label>Статус</label>
+    <select name="status">
+      <option value="">Всі</option>
+      {% for value, label in statuses %}
+      <option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div><label>Фабрика</label><input type="text" name="factory" value="{{ request.GET.factory }}"></div>
+  <div><label>Салон</label><input type="text" name="salon" value="{{ request.GET.salon }}"></div>
+  <div><label>Місто</label><input type="text" name="city" value="{{ request.GET.city }}"></div>
+  <div><label>Дата з</label><input type="date" name="date_from" value="{{ request.GET.date_from }}"></div>
+  <div><label>Дата по</label><input type="date" name="date_to" value="{{ request.GET.date_to }}"></div>
+  <button class="btn sm" type="submit">Фільтрувати</button>
+  <a class="btn ghost sm" href="{% url 'panel:sales' %}">Скинути</a>
+</form>
+
+<div class="panel-box">
+  <table class="data">
+    <tr><th>№</th><th>Подано</th><th>Учасник</th><th>Салон</th><th>Місто</th><th>Дата продажу</th><th>Виріб</th><th>Тканина</th><th>Статус</th></tr>
+    {% for s in page %}
+    <tr>
+      <td class="num"><a href="{% url 'panel:sale_detail' s.pk %}"><b>№{{ s.pk }}</b></a></td>
+      <td class="num">{{ s.created_at|date:"d.m.y H:i" }}</td>
+      <td>{{ s.participant.full_name }}</td>
+      <td>{{ s.participant.salon }}</td>
+      <td>{{ s.participant.city }}</td>
+      <td class="num">{{ s.sale_date|date:"d.m.Y" }}</td>
+      <td>{{ s.product_display }}</td>
+      <td>{{ s.fabric_name }}</td>
+      <td><span class="badge {{ s.status }}">{{ s.get_status_display }}</span></td>
+    </tr>
+    {% empty %}<tr><td colspan="9" class="empty">Нічого не знайдено</td></tr>{% endfor %}
+  </table>
+  {% include "panel/_pager.html" %}
+</div>
+{% endblock %}

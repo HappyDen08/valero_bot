@@ -1,0 +1,26 @@
+{% extends "panel/base.html" %}
+{% block title %}Рейтинг{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Рейтинг — ТОП-20</h1>
+    <div class="sub">{% if campaign %}Акція «{{ campaign.name }}»{% endif %}</div>
+  </div>
+</div>
+
+<div class="panel-box">
+  <table class="data">
+    <tr><th>#</th><th>ПІБ</th><th>Салон</th><th>Місто</th><th>Продажів</th><th>Квитків</th></tr>
+    {% for p in rows %}
+    <tr>
+      <td class="num">{% if forloop.counter == 1 %}<span class="medal">🥇</span>{% elif forloop.counter == 2 %}<span class="medal">🥈</span>{% elif forloop.counter == 3 %}<span class="medal">🥉</span>{% else %}{{ forloop.counter }}{% endif %}</td>
+      <td><b>{{ p.full_name }}</b></td>
+      <td>{{ p.salon }}</td>
+      <td>{{ p.city }}</td>
+      <td class="num">{{ p.sales_count }}</td>
+      <td class="num"><b>{{ p.tickets_count }}</b></td>
+    </tr>
+    {% empty %}<tr><td colspan="6" class="empty">Рейтинг поки порожній</td></tr>{% endfor %}
+  </table>
+</div>
+{% endblock %}
