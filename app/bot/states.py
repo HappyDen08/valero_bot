@@ -5,6 +5,7 @@ class Registration(StatesGroup):
     full_name = State()
     phone = State()
     salon = State()
+    factory = State()
     city = State()
 
 

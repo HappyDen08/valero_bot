@@ -107,6 +107,13 @@ async def reg_phone_invalid(message: Message):
 @router.message(Registration.salon, F.text)
 async def reg_salon(message: Message, state: FSMContext):
     await state.update_data(salon=message.text)
+    await message.answer("Введіть назву <b>фабрики</b>:")
+    await state.set_state(Registration.factory)
+
+
+@router.message(Registration.factory, F.text)
+async def reg_factory(message: Message, state: FSMContext):
+    await state.update_data(factory=message.text)
     await message.answer("Введіть ваше <b>місто</b>:")
     await state.set_state(Registration.city)
 
@@ -211,10 +218,15 @@ async def submit_sale(message: Message, state: FSMContext, bot: Bot):
     await download_photos(bot, sale, data)
 
     await message.answer(
-        f"✅ Дякуємо! Ваш продаж №{sale.id} прийнято.\n"
-        f"Статус: <b>⏳ Очікує перевірки</b>\n\n"
-        f"Після підтвердження вам буде нараховано квиток 🎫",
+        f"✅ Ваш продаж №{sale.id} прийнято!\n\n"
+        f"📋 Статус: <b>⏳ Очікує перевірки</b>\n\n"
+        f"Після підтвердження вам буде нараховано квиток. 🎫\n\n"
+        f"⚠️ Усі результати розіграшів, інформація про переможців та важливі "
+        f"оновлення публікуються в наших соцмережах:\n\n"
+        f"📸 Instagram: https://www.instagram.com/veloro.textile/\n"
+        f"📢 Telegram: https://t.me/velorotextile",
         reply_markup=main_menu,
+        disable_web_page_preview=True,
     )
 
 
