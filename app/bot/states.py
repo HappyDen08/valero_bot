@@ -5,13 +5,12 @@ class Registration(StatesGroup):
     full_name = State()
     phone = State()
     salon = State()
-    factory = State()
     city = State()
 
 
 class AddSale(StatesGroup):
     sale_date = State()
-    factory = State()
     product_type = State()
     fabric = State()
+    factory = State()
     doc_photo = State()

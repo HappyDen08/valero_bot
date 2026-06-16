@@ -107,13 +107,6 @@ async def reg_phone_invalid(message: Message):
 @router.message(Registration.salon, F.text)
 async def reg_salon(message: Message, state: FSMContext):
     await state.update_data(salon=message.text)
-    await message.answer("Введіть назву <b>фабрики</b>:")
-    await state.set_state(Registration.factory)
-
-
-@router.message(Registration.factory, F.text)
-async def reg_factory(message: Message, state: FSMContext):
-    await state.update_data(factory=message.text)
     await message.answer("Введіть ваше <b>місто</b>:")
     await state.set_state(Registration.city)
 
@@ -167,13 +160,6 @@ async def sale_date_step(message: Message, state: FSMContext):
         await message.answer("Дата продажу не може бути в майбутньому. Спробуйте ще раз:")
         return
     await state.update_data(sale_date=sale_date.isoformat())
-    await state.set_state(AddSale.factory)
-    await message.answer("🏭 Введіть назву <b>фабрики</b>, виріб якої продано:")
-
-
-@router.message(AddSale.factory, F.text)
-async def sale_factory_step(message: Message, state: FSMContext):
-    await state.update_data(factory=message.text)
     await state.set_state(AddSale.product_type)
     await message.answer("🛋 Оберіть <b>виріб</b>:", reply_markup=product_type_kb)
 
@@ -190,6 +176,13 @@ async def product_type_step(callback: CallbackQuery, state: FSMContext):
 @router.message(AddSale.fabric, F.text)
 async def fabric_step(message: Message, state: FSMContext):
     await state.update_data(fabric=message.text)
+    await state.set_state(AddSale.factory)
+    await message.answer("🏭 Введіть назву <b>фабрики</b>, виріб якої продано:")
+
+
+@router.message(AddSale.factory, F.text)
+async def sale_factory_step(message: Message, state: FSMContext):
+    await state.update_data(factory=message.text)
     await state.set_state(AddSale.doc_photo)
     await message.answer(
         "📄 Надішліть <b>фото замовлення або документа</b> (за бажанням) "

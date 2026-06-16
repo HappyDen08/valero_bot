@@ -42,7 +42,6 @@ def create_participant(telegram_id: int, data: dict) -> Participant:
         full_name=normalize_text(data["full_name"]),
         phone=data["phone"],
         salon=normalize_text(data["salon"]),
-        factory=normalize_text(data["factory"]),
         city=normalize_text(data["city"]),
     )
     services.log(f"tg:{telegram_id}", "participant_registered", participant_id=participant.id)
