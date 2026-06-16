@@ -53,7 +53,7 @@ class ParticipantAdmin(admin.ModelAdmin):
 @admin.register(Sale)
 class SaleAdmin(admin.ModelAdmin):
     list_display = (
-        "id", "created_at", "participant", "salon", "city",
+        "id", "created_at", "participant", "salon", "factory", "city",
         "sale_date", "product_display", "fabric_name",
         "status", "moderated_by",
     )
@@ -75,7 +75,7 @@ class SaleAdmin(admin.ModelAdmin):
 
     @admin.display(description="Фабрика")
     def factory(self, obj):
-        return obj.participant.factory
+        return obj.factory
 
     @admin.display(description="Місто")
     def city(self, obj):

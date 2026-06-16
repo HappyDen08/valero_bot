@@ -65,6 +65,7 @@ class Sale(models.Model):
         Campaign, on_delete=models.PROTECT, related_name="sales", verbose_name="Кампанія"
     )
     sale_date = models.DateField("Дата продажу")
+    factory = models.CharField("Фабрика", max_length=200, blank=True)
     product_type = models.CharField(
         "Виріб", max_length=20, choices=ProductType.choices
     )

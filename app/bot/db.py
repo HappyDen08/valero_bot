@@ -60,6 +60,7 @@ def create_sale(participant: Participant, campaign: Campaign, data: dict) -> Sal
         participant=participant,
         campaign=campaign,
         sale_date=data["sale_date"],
+        factory=normalize_text(data.get("factory", "")),
         product_type=data["product_type"],
         product_name=data.get("product_name", ""),
         fabric_name=normalize_text(data["fabric"]),

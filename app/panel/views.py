@@ -28,7 +28,7 @@ def filter_sales(request):
     if f.get("status"):
         qs = qs.filter(status=f["status"])
     if f.get("factory"):
-        qs = qs.filter(participant__factory__icontains=f["factory"])
+        qs = qs.filter(factory__icontains=f["factory"])
     if f.get("salon"):
         qs = qs.filter(participant__salon__icontains=f["salon"])
     if f.get("city"):

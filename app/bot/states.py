@@ -11,6 +11,7 @@ class Registration(StatesGroup):
 
 class AddSale(StatesGroup):
     sale_date = State()
+    factory = State()
     product_type = State()
     fabric = State()
     doc_photo = State()

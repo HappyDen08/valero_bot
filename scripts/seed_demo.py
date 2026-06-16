@@ -60,6 +60,7 @@ for i in range(50):
             participant=p,
             campaign=camp,
             sale_date=camp.start_date + timedelta(days=random.randint(0, max_day)),
+            factory=random.choice(factories),
             product_type=ptype,
             fabric_name=random.choice(fabrics),
             doc_photo_file_id="seed",

@@ -45,7 +45,7 @@ SALE_COLUMNS = [
     ("Подано", lambda s: timezone.localtime(s.created_at).strftime("%d.%m.%Y %H:%M")),
     ("ПІБ", lambda s: s.participant.full_name),
     ("Салон", lambda s: s.participant.salon),
-    ("Фабрика", lambda s: s.participant.factory),
+    ("Фабрика", lambda s: s.factory),
     ("Місто", lambda s: s.participant.city),
     ("Дата продажу", lambda s: s.sale_date.strftime("%d.%m.%Y")),
     ("Виріб", lambda s: s.product_display),

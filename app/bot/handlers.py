@@ -167,6 +167,13 @@ async def sale_date_step(message: Message, state: FSMContext):
         await message.answer("Дата продажу не може бути в майбутньому. Спробуйте ще раз:")
         return
     await state.update_data(sale_date=sale_date.isoformat())
+    await state.set_state(AddSale.factory)
+    await message.answer("🏭 Введіть назву <b>фабрики</b>, виріб якої продано:")
+
+
+@router.message(AddSale.factory, F.text)
+async def sale_factory_step(message: Message, state: FSMContext):
+    await state.update_data(factory=message.text)
     await state.set_state(AddSale.product_type)
     await message.answer("🛋 Оберіть <b>виріб</b>:", reply_markup=product_type_kb)
 

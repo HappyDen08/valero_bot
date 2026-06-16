@@ -27,20 +27,21 @@
 
 <div class="panel-box">
   <table class="data">
-    <tr><th>№</th><th>Подано</th><th>Учасник</th><th>Салон</th><th>Місто</th><th>Дата продажу</th><th>Виріб</th><th>Тканина</th><th>Статус</th></tr>
+    <tr><th>№</th><th>Подано</th><th>Учасник</th><th>Салон</th><th>Фабрика</th><th>Місто</th><th>Дата продажу</th><th>Виріб</th><th>Тканина</th><th>Статус</th></tr>
     {% for s in page %}
     <tr>
       <td class="num"><a href="{% url 'panel:sale_detail' s.pk %}"><b>№{{ s.pk }}</b></a></td>
       <td class="num">{{ s.created_at|date:"d.m.y H:i" }}</td>
       <td>{{ s.participant.full_name }}</td>
       <td>{{ s.participant.salon }}</td>
+      <td>{{ s.factory }}</td>
       <td>{{ s.participant.city }}</td>
       <td class="num">{{ s.sale_date|date:"d.m.Y" }}</td>
       <td>{{ s.product_display }}</td>
       <td>{{ s.fabric_name }}</td>
       <td><span class="badge {{ s.status }}">{{ s.get_status_display }}</span></td>
     </tr>
-    {% empty %}<tr><td colspan="9" class="empty">Нічого не знайдено</td></tr>{% endfor %}
+    {% empty %}<tr><td colspan="10" class="empty">Нічого не знайдено</td></tr>{% endfor %}
   </table>
   {% include "panel/_pager.html" %}
 </div>
