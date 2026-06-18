@@ -1,0 +1,42 @@
+{% extends "panel/base.html" %}
+{% block title %}Розсилки{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>Розсилки</h1><div class="sub">Отримувачів зараз: <b>{{ recipients }}</b> зареєстрованих</div></div>
+</div>
+
+<div class="panel-box">
+  <div class="box-head">📣 Нова розсилка всім учасникам</div>
+  <form method="post" enctype="multipart/form-data" class="filters" style="border:none;margin:0;border-radius:0;flex-direction:column;align-items:stretch;gap:14px">
+    {% csrf_token %}
+    <div>
+      <label>Текст повідомлення</label>
+      <textarea name="text" rows="6" style="width:100%" placeholder="Текст розсилки. Можна використовувати HTML: <b>жирний</b>, <i>курсив</i>, посилання."></textarea>
+    </div>
+    <div>
+      <label>Зображення (необов'язково)</label>
+      <input type="file" name="image" accept="image/*">
+      <div class="muted" style="margin-top:4px">Якщо додати фото, текст стане підписом до нього (ліміт підпису — 1024 символи).</div>
+    </div>
+    <div>
+      <button class="btn" type="submit" onclick="return confirm('Надіслати розсилку всім {{ recipients }} учасникам?')">Надіслати всім</button>
+    </div>
+  </form>
+</div>
+
+<div class="panel-box">
+  <div class="box-head">Історія розсилок</div>
+  <table class="data">
+    <tr><th>Надіслано</th><th>Текст</th><th>Фото</th><th>Доставлено</th><th>Хто</th></tr>
+    {% for b in history %}
+    <tr>
+      <td class="num">{{ b.sent_at|date:"d.m.Y H:i" }}</td>
+      <td>{{ b.text|truncatechars:80|default:"—" }}</td>
+      <td>{% if b.image %}<a href="{{ b.image.url }}" target="_blank">📷 фото</a>{% else %}—{% endif %}</td>
+      <td class="num">{{ b.sent_count }} / {{ b.recipients_total }}</td>
+      <td>{{ b.sent_by }}</td>
+    </tr>
+    {% empty %}<tr><td colspan="5" class="empty">Розсилок ще не було</td></tr>{% endfor %}
+  </table>
+</div>
+{% endblock %}

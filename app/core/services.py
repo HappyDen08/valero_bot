@@ -9,7 +9,7 @@ from django.db import transaction
 from django.utils import timezone
 
 from . import telegram_sync
-from .models import AuditLog, Draw, Participant, Sale, Ticket
+from .models import AuditLog, Broadcast, Draw, Participant, Sale, Ticket
 
 
 def log(actor: str, action: str, **details):
@@ -120,6 +120,25 @@ def notify_winner(draw: Draw):
         f"🎉 Вітаємо! Ваш квиток <b>{draw.winning_ticket.code}</b> виграв "
         f"у розіграші «{draw.prize}»!\nЗ вами зв'яжеться представник Veloro.",
     )
+
+
+def send_broadcast(broadcast: Broadcast, actor: str) -> int:
+    """Надсилає розсилку всім зареєстрованим (не заблокованим) учасникам."""
+    chat_ids = list(
+        Participant.objects.filter(is_blocked=False).values_list("telegram_id", flat=True)
+    )
+    image_path = broadcast.image.path if broadcast.image else None
+    sent = telegram_sync.broadcast_media(chat_ids, broadcast.text, image_path)
+
+    broadcast.recipients_total = len(chat_ids)
+    broadcast.sent_count = sent
+    broadcast.sent_by = actor
+    broadcast.sent_at = timezone.now()
+    broadcast.save()
+
+    log(actor, "broadcast_sent", broadcast_id=broadcast.id,
+        recipients=len(chat_ids), sent=sent)
+    return sent
 
 
 def broadcast_draw_results(draw: Draw, actor: str) -> int:

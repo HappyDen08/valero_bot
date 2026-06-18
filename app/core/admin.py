@@ -5,7 +5,7 @@ from django.utils.html import format_html
 
 from . import services
 from .exports import PARTICIPANT_COLUMNS, SALE_COLUMNS, TICKET_COLUMNS, export_xlsx
-from .models import AuditLog, Campaign, Draw, Participant, Sale, Ticket
+from .models import AuditLog, Broadcast, Campaign, Draw, Participant, Sale, Ticket
 
 
 @admin.register(Campaign)
@@ -181,6 +181,12 @@ class DrawAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return request.user.is_superuser
+
+
+@admin.register(Broadcast)
+class BroadcastAdmin(admin.ModelAdmin):
+    list_display = ("created_at", "text", "sent_at", "sent_count", "recipients_total", "sent_by")
+    readonly_fields = ("recipients_total", "sent_count", "sent_by", "sent_at")
 
 
 @admin.register(AuditLog)

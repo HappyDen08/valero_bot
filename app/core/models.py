@@ -162,6 +162,24 @@ class Draw(models.Model):
         return self.performed_by.split(":", 1)[-1]
 
 
+class Broadcast(models.Model):
+    text = models.TextField("Текст повідомлення", blank=True)
+    image = models.ImageField("Зображення", upload_to="broadcasts/", blank=True)
+    recipients_total = models.PositiveIntegerField("Отримувачів", default=0, editable=False)
+    sent_count = models.PositiveIntegerField("Доставлено", default=0, editable=False)
+    sent_by = models.CharField("Надіслав", max_length=200, blank=True, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    sent_at = models.DateTimeField("Надіслано", null=True, blank=True, editable=False)
+
+    class Meta:
+        verbose_name = "Розсилка"
+        verbose_name_plural = "Розсилки"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"Розсилка від {self.created_at:%d.%m.%Y %H:%M}"
+
+
 class AuditLog(models.Model):
     actor = models.CharField("Хто", max_length=200)
     action = models.CharField("Дія", max_length=100)

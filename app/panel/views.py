@@ -10,7 +10,7 @@ from django.utils import timezone
 
 from core import services
 from core.exports import PARTICIPANT_COLUMNS, SALE_COLUMNS, TICKET_COLUMNS, export_xlsx
-from core.models import AuditLog, Campaign, Draw, Participant, Sale, Ticket
+from core.models import AuditLog, Broadcast, Campaign, Draw, Participant, Sale, Ticket
 
 staff_required = user_passes_test(lambda u: u.is_active and u.is_staff, login_url="panel:login")
 
@@ -240,6 +240,29 @@ def draw_perform(request):
         "city": draw.winner.city,
         "tickets_total": draw.tickets_total,
         "performed_at": timezone.localtime(draw.performed_at).strftime("%d.%m.%Y %H:%M:%S"),
+    })
+
+
+@staff_required
+def broadcasts(request):
+    if request.method == "POST":
+        text = request.POST.get("text", "").strip()
+        image = request.FILES.get("image")
+        if not text and not image:
+            messages.error(request, "Додайте текст або зображення.")
+            return redirect("panel:broadcasts")
+        broadcast = Broadcast.objects.create(text=text, image=image or "")
+        sent = services.send_broadcast(broadcast, f"panel:{request.user.username}")
+        messages.success(
+            request,
+            f"Розсилку надіслано: {sent} із {broadcast.recipients_total} учасників.",
+        )
+        return redirect("panel:broadcasts")
+
+    recipients = Participant.objects.filter(is_blocked=False).count()
+    history = Broadcast.objects.exclude(sent_at__isnull=True)
+    return render(request, "panel/broadcasts.html", {
+        "active": "broadcasts", "recipients": recipients, "history": history,
     })
 
 

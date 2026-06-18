@@ -17,6 +17,7 @@ urlpatterns = [
     path("tickets/", views.tickets, name="tickets"),
     path("tickets/export/", views.tickets_export, name="tickets_export"),
     path("rating/", views.rating, name="rating"),
+    path("broadcasts/", views.broadcasts, name="broadcasts"),
     path("draws/", views.draws, name="draws"),
     path("draws/ceremony/", views.draw_ceremony, name="draw_ceremony"),
     path("draws/perform/", views.draw_perform, name="draw_perform"),
