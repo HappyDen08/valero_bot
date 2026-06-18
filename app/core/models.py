@@ -164,7 +164,7 @@ class Draw(models.Model):
 
 class Broadcast(models.Model):
     text = models.TextField("Текст повідомлення", blank=True)
-    image = models.ImageField("Зображення", upload_to="broadcasts/", blank=True)
+    media = models.FileField("Медіа (фото або відео)", upload_to="broadcasts/", blank=True)
     recipients_total = models.PositiveIntegerField("Отримувачів", default=0, editable=False)
     sent_count = models.PositiveIntegerField("Доставлено", default=0, editable=False)
     sent_by = models.CharField("Надіслав", max_length=200, blank=True, editable=False)

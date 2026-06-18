@@ -127,8 +127,8 @@ def send_broadcast(broadcast: Broadcast, actor: str) -> int:
     chat_ids = list(
         Participant.objects.filter(is_blocked=False).values_list("telegram_id", flat=True)
     )
-    image_path = broadcast.image.path if broadcast.image else None
-    sent = telegram_sync.broadcast_media(chat_ids, broadcast.text, image_path)
+    media_path = broadcast.media.path if broadcast.media else None
+    sent = telegram_sync.broadcast_media(chat_ids, broadcast.text, media_path)
 
     broadcast.recipients_total = len(chat_ids)
     broadcast.sent_count = sent

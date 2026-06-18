@@ -14,9 +14,9 @@
       <textarea name="text" rows="6" style="width:100%" placeholder="Текст розсилки. Можна використовувати HTML: <b>жирний</b>, <i>курсив</i>, посилання."></textarea>
     </div>
     <div>
-      <label>Зображення (необов'язково)</label>
-      <input type="file" name="image" accept="image/*">
-      <div class="muted" style="margin-top:4px">Якщо додати фото, текст стане підписом до нього (ліміт підпису — 1024 символи).</div>
+      <label>Медіа — фото або відео (необов'язково)</label>
+      <input type="file" name="media" accept="image/*,video/*">
+      <div class="muted" style="margin-top:4px">Тип визначається автоматично. Текст стає підписом до медіа (ліміт — 1024 символи). Відео — до 50 МБ.</div>
     </div>
     <div>
       <button class="btn" type="submit" onclick="return confirm('Надіслати розсилку всім {{ recipients }} учасникам?')">Надіслати всім</button>
@@ -27,12 +27,12 @@
 <div class="panel-box">
   <div class="box-head">Історія розсилок</div>
   <table class="data">
-    <tr><th>Надіслано</th><th>Текст</th><th>Фото</th><th>Доставлено</th><th>Хто</th></tr>
+    <tr><th>Надіслано</th><th>Текст</th><th>Медіа</th><th>Доставлено</th><th>Хто</th></tr>
     {% for b in history %}
     <tr>
       <td class="num">{{ b.sent_at|date:"d.m.Y H:i" }}</td>
       <td>{{ b.text|truncatechars:80|default:"—" }}</td>
-      <td>{% if b.image %}<a href="{{ b.image.url }}" target="_blank">📷 фото</a>{% else %}—{% endif %}</td>
+      <td>{% if b.media %}<a href="{{ b.media.url }}" target="_blank">📎 файл</a>{% else %}—{% endif %}</td>
       <td class="num">{{ b.sent_count }} / {{ b.recipients_total }}</td>
       <td>{{ b.sent_by }}</td>
     </tr>

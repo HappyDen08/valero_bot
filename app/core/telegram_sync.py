@@ -1,5 +1,6 @@
 """Синхронна відправка повідомлень у Telegram (для адмінки та сервісів)."""
 import logging
+import os
 import time
 
 import requests
@@ -40,37 +41,50 @@ def broadcast(chat_ids: list[int], text: str) -> int:
     return sent
 
 
-def _send_photo(chat_id: int, caption: str, image_path=None, file_id=None):
-    """Відправляє фото. Якщо є file_id — пересилає за ним (без перезавантаження файлу).
-    Повертає (успіх, file_id_завантаженого_фото)."""
-    url = API.format(token=settings.BOT_TOKEN, method="sendPhoto")
+VIDEO_EXTS = {".mp4", ".mov", ".m4v", ".webm", ".avi", ".mkv"}
+
+
+def is_video(path: str) -> bool:
+    return os.path.splitext(path)[1].lower() in VIDEO_EXTS
+
+
+def _send_media(chat_id: int, caption: str, media_path=None, file_id=None, video=False):
+    """Відправляє фото або відео. Якщо є file_id — пересилає за ним (без
+    перезавантаження файлу). Повертає (успіх, file_id_завантаженого_медіа)."""
+    method = "sendVideo" if video else "sendPhoto"
+    field = "video" if video else "photo"
+    url = API.format(token=settings.BOT_TOKEN, method=method)
     data = {"chat_id": chat_id, "caption": caption[:1024], "parse_mode": "HTML"}
     try:
         if file_id:
-            data["photo"] = file_id
-            r = requests.post(url, data=data, timeout=20)
+            data[field] = file_id
+            r = requests.post(url, data=data, timeout=30)
         else:
-            with open(image_path, "rb") as f:
-                r = requests.post(url, data=data, files={"photo": f}, timeout=60)
+            with open(media_path, "rb") as f:
+                r = requests.post(url, data=data, files={field: f}, timeout=120)
         if not r.ok:
-            logger.warning("sendPhoto %s: %s", chat_id, r.text)
+            logger.warning("%s %s: %s", method, chat_id, r.text)
             return False, None
-        photos = r.json().get("result", {}).get("photo", [])
+        result = r.json().get("result", {})
+        if video:
+            return True, result.get("video", {}).get("file_id")
+        photos = result.get("photo", [])
         return True, (photos[-1]["file_id"] if photos else None)
     except (requests.RequestException, OSError):
-        logger.exception("Помилка sendPhoto %s", chat_id)
+        logger.exception("Помилка %s %s", method, chat_id)
         return False, None
 
 
-def broadcast_media(chat_ids: list[int], text: str, image_path=None) -> int:
-    """Розсилка тексту або фото з підписом. Фото вантажиться один раз,
-    далі пересилається за file_id. Повертає кількість доставлених."""
-    if not image_path:
+def broadcast_media(chat_ids: list[int], text: str, media_path=None) -> int:
+    """Розсилка тексту або медіа (фото/відео визначається за розширенням) з підписом.
+    Медіа вантажиться один раз, далі пересилається за file_id."""
+    if not media_path:
         return broadcast(chat_ids, text)
+    video = is_video(media_path)
     sent = 0
     file_id = None
     for chat_id in chat_ids:
-        ok, new_id = _send_photo(chat_id, text, image_path, file_id)
+        ok, new_id = _send_media(chat_id, text, media_path, file_id, video)
         if ok:
             sent += 1
             file_id = file_id or new_id

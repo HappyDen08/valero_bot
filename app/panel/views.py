@@ -247,11 +247,11 @@ def draw_perform(request):
 def broadcasts(request):
     if request.method == "POST":
         text = request.POST.get("text", "").strip()
-        image = request.FILES.get("image")
-        if not text and not image:
-            messages.error(request, "Додайте текст або зображення.")
+        media = request.FILES.get("media")
+        if not text and not media:
+            messages.error(request, "Додайте текст або медіа.")
             return redirect("panel:broadcasts")
-        broadcast = Broadcast.objects.create(text=text, image=image or "")
+        broadcast = Broadcast.objects.create(text=text, media=media or "")
         sent = services.send_broadcast(broadcast, f"panel:{request.user.username}")
         messages.success(
             request,
