@@ -14,12 +14,29 @@
       <textarea name="text" rows="6" style="width:100%" placeholder="Текст розсилки. Можна використовувати HTML: <b>жирний</b>, <i>курсив</i>, посилання."></textarea>
     </div>
     <div>
+      <label>Кому</label>
+      <label style="display:inline;text-transform:none;font-size:14px"><input type="radio" name="audience" value="all" checked> Всім ({{ recipients }})</label>
+      &nbsp;
+      <label style="display:inline;text-transform:none;font-size:14px"><input type="radio" name="audience" value="selected"> Вибраним</label>
+      <div id="picker" style="display:none;margin-top:10px;position:relative">
+        <div id="chips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px"></div>
+        <input type="text" id="pickerSearch" autocomplete="off" placeholder="Почніть вводити ПІБ, салон, місто або телефон" style="width:100%">
+        <div id="opts" style="display:none;position:absolute;left:0;right:0;z-index:10;max-height:150px;overflow:auto;background:#fff;border:1px solid var(--border,#ddd);border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.12)">
+          {% for p in participants %}
+          <div class="opt" data-id="{{ p.id }}" data-search="{{ p.full_name }} {{ p.salon }} {{ p.city }} {{ p.phone }}" style="padding:8px 12px;cursor:pointer;text-transform:none;font-size:14px">
+            {{ p.full_name }} <span class="muted">— {{ p.salon }}, {{ p.city }}, {{ p.phone }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    <div>
       <label>Медіа — фото або відео (необов'язково)</label>
       <input type="file" name="media" accept="image/*,video/*">
       <div class="muted" style="margin-top:4px">Тип визначається автоматично. Текст стає підписом до медіа (ліміт — 1024 символи). Відео — до 50 МБ.</div>
     </div>
     <div>
-      <button class="btn" type="submit" onclick="return confirm('Надіслати розсилку всім {{ recipients }} учасникам?')">Надіслати всім</button>
+      <button class="btn" type="submit" onclick="return confirm('Надіслати розсилку?')">Надіслати</button>
     </div>
   </form>
 </div>
@@ -39,4 +56,39 @@
     {% empty %}<tr><td colspan="5" class="empty">Розсилок ще не було</td></tr>{% endfor %}
   </table>
 </div>
+<script>
+const picker = document.getElementById('picker'), search = document.getElementById('pickerSearch'),
+      opts = document.getElementById('opts'), chips = document.getElementById('chips');
+const optEls = [...opts.querySelectorAll('.opt')];
+const picked = new Set();
+
+function refresh() {
+  const q = search.value.toLowerCase();
+  let shown = 0;
+  optEls.forEach(o => {
+    const show = !picked.has(o.dataset.id) && o.dataset.search.toLowerCase().includes(q);
+    o.style.display = show ? 'block' : 'none';
+    if (show) shown++;
+  });
+  opts.style.display = shown ? 'block' : 'none';
+}
+function pick(o) {
+  picked.add(o.dataset.id);
+  const chip = document.createElement('span');
+  chip.style.cssText = 'background:#e8efe9;border-radius:14px;padding:3px 10px;font-size:13px;cursor:pointer';
+  chip.textContent = o.firstChild.textContent.trim() + ' ✕';
+  chip.innerHTML += '<input type="hidden" name="participants" value="' + o.dataset.id + '">';
+  chip.onclick = () => { picked.delete(o.dataset.id); chip.remove(); refresh(); };
+  chips.appendChild(chip);
+  search.value = '';
+  refresh();
+}
+optEls.forEach(o => o.addEventListener('mousedown', e => { e.preventDefault(); pick(o); }));
+optEls.forEach(o => { o.onmouseenter = () => o.style.background = '#f1f4f2'; o.onmouseleave = () => o.style.background = ''; });
+search.addEventListener('focus', refresh);
+search.addEventListener('input', refresh);
+search.addEventListener('blur', () => { opts.style.display = 'none'; });
+document.querySelectorAll('input[name=audience]').forEach(r =>
+  r.addEventListener('change', () => { picker.style.display = document.querySelector('input[name=audience]:checked').value === 'selected' ? 'block' : 'none'; }));
+</script>
 {% endblock %}

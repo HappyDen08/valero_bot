@@ -114,19 +114,12 @@ def perform_draw(draw: Draw, actor: str) -> Draw:
     return draw
 
 
-def notify_winner(draw: Draw):
-    telegram_sync.send_message(
-        draw.winner.telegram_id,
-        f"🎉 Вітаємо! Ваш квиток <b>{draw.winning_ticket.code}</b> виграв "
-        f"у розіграші «{draw.prize}»!\nЗ вами зв'яжеться представник Veloro.",
-    )
-
-
-def send_broadcast(broadcast: Broadcast, actor: str) -> int:
-    """Надсилає розсилку всім зареєстрованим (не заблокованим) учасникам."""
-    chat_ids = list(
-        Participant.objects.filter(is_blocked=False).values_list("telegram_id", flat=True)
-    )
+def send_broadcast(broadcast: Broadcast, actor: str, participant_ids=None) -> int:
+    """Надсилає розсилку незаблокованим учасникам: усім або лише вибраним (participant_ids)."""
+    participants = Participant.objects.filter(is_blocked=False)
+    if participant_ids is not None:
+        participants = participants.filter(id__in=participant_ids)
+    chat_ids = list(participants.values_list("telegram_id", flat=True))
     media_path = broadcast.media.path if broadcast.media else None
     sent = telegram_sync.broadcast_media(chat_ids, broadcast.text, media_path)
 

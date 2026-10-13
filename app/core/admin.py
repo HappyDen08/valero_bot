@@ -163,11 +163,10 @@ class DrawAdmin(admin.ModelAdmin):
         except services.DrawError as e:
             self.message_user(request, str(e), messages.ERROR)
             return
-        services.notify_winner(obj)
         self.message_user(
             request,
             f"Розіграш проведено! Виграшний квиток {obj.winning_ticket.code}, "
-            f"переможець: {obj.winner.full_name}. Переможця сповіщено.",
+            f"переможець: {obj.winner.full_name}.",
             messages.SUCCESS,
         )
 

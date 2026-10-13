@@ -231,7 +231,6 @@ def draw_perform(request):
         services.perform_draw(draw, f"panel:{request.user.username}")
     except services.DrawError as e:
         return JsonResponse({"error": str(e)}, status=400)
-    services.notify_winner(draw)
     return JsonResponse({
         "draw_id": draw.pk,
         "ticket": draw.winning_ticket.code,
@@ -251,8 +250,16 @@ def broadcasts(request):
         if not text and not media:
             messages.error(request, "Додайте текст або медіа.")
             return redirect("panel:broadcasts")
+        participant_ids = None
+        if request.POST.get("audience") == "selected":
+            participant_ids = request.POST.getlist("participants")
+            if not participant_ids:
+                messages.error(request, "Виберіть хоча б одного учасника.")
+                return redirect("panel:broadcasts")
         broadcast = Broadcast.objects.create(text=text, media=media or "")
-        sent = services.send_broadcast(broadcast, f"panel:{request.user.username}")
+        sent = services.send_broadcast(
+            broadcast, f"panel:{request.user.username}", participant_ids
+        )
         messages.success(
             request,
             f"Розсилку надіслано: {sent} із {broadcast.recipients_total} учасників.",
@@ -263,6 +270,7 @@ def broadcasts(request):
     history = Broadcast.objects.exclude(sent_at__isnull=True)
     return render(request, "panel/broadcasts.html", {
         "active": "broadcasts", "recipients": recipients, "history": history,
+        "participants": Participant.objects.filter(is_blocked=False).order_by("full_name"),
     })
 
 
@@ -283,11 +291,10 @@ def draws(request):
             except services.DrawError as e:
                 messages.error(request, str(e))
                 return redirect("panel:draws")
-            services.notify_winner(draw)
             messages.success(
                 request,
                 f"Розіграш проведено! Виграшний квиток {draw.winning_ticket.code} — "
-                f"{draw.winner.full_name}. Переможця сповіщено.",
+                f"{draw.winner.full_name}.",
             )
         elif request.POST.get("action") == "broadcast":
             draw = get_object_or_404(Draw, pk=request.POST.get("draw_id"), winner__isnull=False)
